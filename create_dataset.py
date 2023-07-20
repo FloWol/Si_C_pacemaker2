@@ -4,11 +4,17 @@ import numpy as np
 import pandas as pd
 import gzip
 import time
-from reduce_data import reduce_redundancy
+from reduce_data_fast_accurate import reduce_redundancy
 from pandas.core.nanops import set_use_bottleneck
 
 """
 This script creates a pandas dataframe containing the data that can then be read by pacemaker
+if used with group_data it creates one dataframe
+
+if used with get_gzips it will creat a dataframe for every subfolder
+    the last option might be better if memory is limited
+    then use data_collection or data_look to unite the dataframe to one dataframe
+    
 """
 
 def parameters(interactive=False):
@@ -36,15 +42,19 @@ def concat_dataframes(root_folder,  metric, threshold):
                 file_path = os.path.join(root, file)
                 with gzip.open(file_path, "rb") as f:
                     sub_dataset = pd.read_pickle(f)
+                    prefiltered_size = sub_dataset.shape[0]
                 #check if they have the same data format
                     if set(dataset.columns) == set(sub_dataset.columns):
-                        sub_dataset = reduce_redundancy(sub_dataset, metric, threshold)
+                        sub_dataset = reduce_redundancy(sub_dataset, metric, threshold) #FIXME could be more efficient
                         dataset=pd.concat([dataset, sub_dataset], ignore_index=True)
-                        #do redundancy sampling
+                        #print reduction rate
+                    reducion_degree = sub_dataset.shape[0]/prefiltered_size
+                    print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree * 100))
 
                 f.close()
         chunk+=1
-        dataset.to_pickle("dataset/"+str(chunk)+"dataset.pckl.gzip", compression='gzip', protocol=4)  # include destination
+        dataset.to_pickle("dataset_reduced/"+str(chunk)+"dataset_" + metric+str(threshold)+
+                                                        ".pckl.gzip", compression='gzip', protocol=4)  # include destination
 
     end_time = time.time()
     execution_time = end_time - start_time
@@ -60,7 +70,7 @@ eV_range = lambda start, end, step=0.5: np.arange(start,end+step,step)
 
 
 
-folder_path = "/home/flo/pacemaker/Data/"  # Replace with the actual root folder path
-dataset = concat_dataframes(folder_path)
+folder_path = "/home/flo/pacemaker/data_grouped/"  # Replace with the actual root folder path
+concat_dataframes(folder_path, "energy_corrected", 0.15)
 print("done")
 

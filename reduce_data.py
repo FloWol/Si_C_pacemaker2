@@ -42,7 +42,18 @@ def reduce_redundancy(data, metric, threshold, norm="max"):
     return data.iloc[indices]
 
 
-df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at34_E9.5_b0_a0.pckl.gzip", compression="gzip")
-data_filterd=reduce_redundancy(df, "energy", 0.01)
+df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
+data_filterd=reduce_redundancy(df, "energy_corrected", 0.01)
+reducion_degree = data_filterd.shape[0]/df.shape[0]
+print("energy_corrected: Data was reduced by {:.2f}% ".format(reducion_degree*100))
 #0.01 for energy values filters around 50% of the data
 #test some more
+#for frob norm (at least in case of exchange) try 0.001-0.005
+data_filterd=reduce_redundancy(df, "distance", 0.02)
+reducion_degree = data_filterd.shape[0]/df.shape[0]
+print("Distance: Data was reduced by {:.2f}% ".format(reducion_degree*100))
+
+#for forces 0.3?
+data_filterd=reduce_redundancy(df, "forces", 0.3)
+reducion_degree = data_filterd.shape[0]/df.shape[0]
+print("Forces: Data was reduced by {:.2f}% ".format(reducion_degree*100))
