@@ -13,10 +13,6 @@ if __name__ == '__main__':
 
 
 #Researchredundancy
-# check out https://pacemaker.readthedocs.io/en/latest/pacemaker/quickstart/
-# look further into the ASE_to_Pacemaker script
-# look into the data
-# check this out https://wiki.fysik.dtu.dk/ase/ase/atoms.html
 # check out https://github.com/ICAMS/python-ace/tree/master/examples for examples
 #look into active learning
 
