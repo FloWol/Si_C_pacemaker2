@@ -15,7 +15,7 @@ and plotted
 #df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
 #This below here has no exchange
 #df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config8_rlx_at48_E3_b0_a0.pckl.gzip", compression="gzip")
-df = pd.read_pickle("/home/flo/pacemaker/data_grouped/gra66_triSi_rlx_at29_E14.0_a-15_b72.0.pckl.gzip", compression="gzip")
+df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config2_bfgs.pckl.gzip", compression="gzip") #TODO check this
 
 root_folder = "/home/flo/pacemaker/Data/"
 

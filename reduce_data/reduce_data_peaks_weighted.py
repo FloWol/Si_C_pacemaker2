@@ -25,7 +25,7 @@ def get_diff_func(metric, norm):
     return losses[metric]
 
 
-def reduce_redundancy(df, metric, reduction, boost_factor=50000, norm=None, full_return=False):
+def reduce_redundancy_weight(df, metric, reduction, norm=None, boost_factor=2, peak_importance_factor=1000, full_return=False):
     """
     This function takes in a dataframe already suitable for pacemaker
     and returns a dataframe that filters out all values of the metric that
@@ -52,11 +52,12 @@ def reduce_redundancy(df, metric, reduction, boost_factor=50000, norm=None, full
 
     peaks, _ = signal.find_peaks(data)
     importance_weights_peaks = np.min(np.abs(np.subtract.outer(np.arange(data_len), peaks)), axis=1)
+    peak_importance_factor = peak_importance_factor  # You can adjust this factor as needed
+    importance_weights_peaks[peaks] *= peak_importance_factor
 
     # Boost the importance weights of non-peak points
     boost_factor =  boost_factor # You can adjust this factor as needed
     importance_weights_non_peaks = np.ones(len(data)) * boost_factor
-    importance_weights_non_peaks[peaks] = 1.0
 
     # Combine the importance weights for both peaks and non-peaks
     importance_weights_combined = importance_weights_peaks + importance_weights_non_peaks
@@ -80,19 +81,20 @@ def plot_df(energy_df):
     plt.show()
 
 if __name__ == '__main__':
-    df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
-    data_filterd=reduce_redundancy(df, "energy_corrected", 0.21)
-    reducion_degree = data_filterd.shape[0]/df.shape[0]
-    print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))
-    col="r"
-    plt.scatter(df.index.values, df["energy_corrected"], marker=".", s=0.8)
-    plt.scatter(data_filterd, df["energy_corrected"][data_filterd], marker=".", s=0.8, color=col)
-    plt.show()
+    df = pd.read_pickle("/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
+    col = "r"
+    # data_filterd=reduce_redundancy_weight(df, "energy_corrected", 0.21)
+    # reducion_degree = data_filterd.shape[0]/df.shape[0]
+    # print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))
+    #
+    # plt.scatter(df.index.values, df["energy_corrected"], marker=".", s=0.8)
+    # plt.scatter(data_filterd, df["energy_corrected"][data_filterd], marker=".", s=0.8, color=col)
+    # plt.show()
 
 
 
     norm="fro"
-    data_filterd=reduce_redundancy(df, "forces", 0.3,norm=norm)
+    data_filterd=reduce_redundancy_weight(df, "forces", 0.2,norm=norm)
     reducion_degree = data_filterd.shape[0]/df.shape[0]
     print("Forces: Data was reduced to {:.2f}% ".format(reducion_degree*100))
 
@@ -102,14 +104,14 @@ if __name__ == '__main__':
     plt.show()
 
 
-    norm=np.inf
-    data_filterd=reduce_redundancy(df, "ase_atoms", 0.21, norm=norm)
-    reducion_degree = data_filterd.shape[0]/df.shape[0]
-    print("Distance: Data was reduced to {:.2f}% ".format(reducion_degree*100))
-
-    positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
-    frob_pos = np.linalg.norm(positions, ord=norm, axis=(1,2))
-
-    plt.scatter(np.linspace(0,len(frob_pos),len(frob_pos)), frob_pos, marker=".", s=0.8)
-    plt.scatter(data_filterd, frob_pos[data_filterd], marker=".", s=0.8, color=col)
-    plt.show()
+    # norm=np.inf
+    # data_filterd=reduce_redundancy_weight(df, "ase_atoms", 0.21, norm=norm)
+    # reducion_degree = data_filterd.shape[0]/df.shape[0]
+    # print("Distance: Data was reduced to {:.2f}% ".format(reducion_degree*100))
+    #
+    # positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
+    # frob_pos = np.linalg.norm(positions, ord=norm, axis=(1,2))
+    #
+    # plt.scatter(np.linspace(0,len(frob_pos),len(frob_pos)), frob_pos, marker=".", s=0.8)
+    # plt.scatter(data_filterd, frob_pos[data_filterd], marker=".", s=0.8, color=col)
+    # plt.show()

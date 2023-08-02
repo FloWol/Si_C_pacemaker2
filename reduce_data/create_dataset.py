@@ -5,6 +5,7 @@ import pandas as pd
 import gzip
 import time
 from reduce_data_accurate import reduce_redundancy
+from sample_more_peaks  import reduce_redundancy_min_max
 from pandas.core.nanops import set_use_bottleneck
 
 """
@@ -29,7 +30,7 @@ def create_dataframe():
     return
 
 
-def concat_dataframes(root_folder,  metric, threshold, norm=None):
+def concat_dataframes(root_folder,  metric, threshold, reduction_f, norm=None):
     print("starting concatenating")
     start_time = time.time()
 
@@ -47,7 +48,7 @@ def concat_dataframes(root_folder,  metric, threshold, norm=None):
                     prefiltered_size = sub_dataset.shape[0]
                 #check if they have the same data format
                     if set(dataset.columns) == set(sub_dataset.columns):
-                        sub_dataset = reduce_redundancy(sub_dataset, metric, threshold, norm) #FIXME could be more efficient
+                        sub_dataset = reduction_f(sub_dataset, metric, threshold, norm) #FIXME could be more efficient
                         dataset=pd.concat([dataset, sub_dataset], ignore_index=True)
                         #print reduction rate
                     reducion_degree = sub_dataset.shape[0]/prefiltered_size
@@ -55,7 +56,7 @@ def concat_dataframes(root_folder,  metric, threshold, norm=None):
 
                 f.close()
         chunk+=1
-        dataset.to_pickle("dataset_reduced/"+str(chunk)+"dataset_" + metric+str(int(threshold*10))+
+        dataset.to_pickle("dataset_reduced/"+str(chunk)+"dataset_w" + metric+str(int(threshold*10))+
                                                         ".pckl.gzip", compression='gzip', protocol=4)  # include destination
 
     end_time = time.time()
@@ -70,7 +71,7 @@ single_Si = True
 multi_Si = True
 eV_range = lambda start, end, step=0.5: np.arange(start,end+step,step)
 
-folder_path = "/home/flo/pacemaker/data_grouped/"  # Replace with the actual root folder path
-concat_dataframes(folder_path,  "distance", 0.4, norm=np.inf)
+folder_path = "/home/flo/pacemaker/data_grouped"  # Replace with the actual root folder path
+concat_dataframes(folder_path,  "forces", 0.3, reduce_redundancy_min_max,norm="fro")
 print("done")
 

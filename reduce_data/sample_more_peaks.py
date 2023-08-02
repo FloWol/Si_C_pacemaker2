@@ -25,7 +25,7 @@ def get_diff_func(metric, norm):
     return losses[metric]
 
 
-def reduce_redundancy(df, metric, reduction, norm=None, full_return=False):
+def reduce_redundancy_min_max(df, metric, reduction, norm=None, boost_factor=2, peak_importance_factor=1000, full_return=False):
     """
     This function takes in a dataframe already suitable for pacemaker
     and returns a dataframe that filters out all values of the metric that
@@ -40,7 +40,9 @@ def reduce_redundancy(df, metric, reduction, norm=None, full_return=False):
     """
 
 
+
     data=df[metric]
+    data_len = len(data)
 
     if(metric=="forces"):
         data = df['forces'].apply(lambda x: np.linalg.norm(x, ord=norm))
@@ -48,15 +50,28 @@ def reduce_redundancy(df, metric, reduction, norm=None, full_return=False):
         positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
         data = np.linalg.norm(positions, ord=norm, axis=(1, 2))
 
+    positive_peaks, _ = signal.find_peaks(data)
+    negative_peaks, _ = signal.find_peaks(-data)
 
+    # Step 3: Downsampling with Importance Weighting
+    peaks = np.concatenate((positive_peaks, negative_peaks))
+    peaks = np.sort(peaks)
 
-    peaks, _ = signal.find_peaks(data)
     distances_to_peaks = np.min(np.abs(np.subtract.outer(np.arange(len(data)), peaks)), axis=1)
-
     importance_weights = 1.0 / (1.0 + distances_to_peaks)
 
-    downsampled_indices = np.random.choice(len(data), size=int(np.round(len(data)*reduction)), replace=False,
-                                           p=importance_weights / np.sum(importance_weights))
+    peak_importance_factor = 1.8  # You can adjust this factor as needed
+    importance_weights[peaks] *= peak_importance_factor
+
+    non_peak_downsampling_factor = 1  # You can adjust this factor as needed
+    importance_weights[~np.isin(np.arange(len(data)), peaks)] *= non_peak_downsampling_factor
+
+    # Normalize the importance weights to sum to 1
+    importance_weights /= np.sum(importance_weights)
+
+
+    downsampled_indices = np.random.choice(len(data), size=int(np.round(data_len*reduction)), replace=False,
+                                           p=importance_weights)
 
     if(full_return):
         return downsampled_indices
@@ -72,18 +87,19 @@ def plot_df(energy_df):
 
 if __name__ == '__main__':
     df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
-    data_filterd=reduce_redundancy(df, "energy_corrected", 0.2)
-    reducion_degree = data_filterd.shape[0]/df.shape[0]
-    print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))
-    col="r"
-    plt.scatter(df.index.values, df["energy_corrected"], marker=".", s=0.8)
-    plt.scatter(data_filterd, df["energy_corrected"][data_filterd], marker=".", s=0.8, color=col)
-    plt.show()
+    col = "r"
+    # data_filterd=reduce_redundancy_weight(df, "energy_corrected", 0.21)
+    # reducion_degree = data_filterd.shape[0]/df.shape[0]
+    # print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))
+    #
+    # plt.scatter(df.index.values, df["energy_corrected"], marker=".", s=0.8)
+    # plt.scatter(data_filterd, df["energy_corrected"][data_filterd], marker=".", s=0.8, color=col)
+    # plt.show()
 
 
-    #for forces 0.3?
+
     norm="fro"
-    data_filterd=reduce_redundancy(df, "forces", 0.2,norm=norm)
+    data_filterd=reduce_redundancy_min_max(df, "forces", 0.3,norm=norm)
     reducion_degree = data_filterd.shape[0]/df.shape[0]
     print("Forces: Data was reduced to {:.2f}% ".format(reducion_degree*100))
 
@@ -93,14 +109,14 @@ if __name__ == '__main__':
     plt.show()
 
 
-    norm=np.inf
-    data_filterd=reduce_redundancy(df, "ase_atoms", 0.2, norm=norm)
-    reducion_degree = data_filterd.shape[0]/df.shape[0]
-    print("Distance: Data was reduced to {:.2f}% ".format(reducion_degree*100))
-
-    positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
-    frob_pos = np.linalg.norm(positions, ord=norm, axis=(1,2))
-
-    plt.scatter(np.linspace(0,len(frob_pos),len(frob_pos)), frob_pos, marker=".", s=0.8)
-    plt.scatter(data_filterd, frob_pos[data_filterd], marker=".", s=0.8, color=col)
-    plt.show()
+    # norm=np.inf
+    # data_filterd=reduce_redundancy_weight(df, "ase_atoms", 0.21, norm=norm)
+    # reducion_degree = data_filterd.shape[0]/df.shape[0]
+    # print("Distance: Data was reduced to {:.2f}% ".format(reducion_degree*100))
+    #
+    # positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
+    # frob_pos = np.linalg.norm(positions, ord=norm, axis=(1,2))
+    #
+    # plt.scatter(np.linspace(0,len(frob_pos),len(frob_pos)), frob_pos, marker=".", s=0.8)
+    # plt.scatter(data_filterd, frob_pos[data_filterd], marker=".", s=0.8, color=col)
+    # plt.show()
