@@ -19,7 +19,7 @@ def copy_pickl_gzip_files(source_dir, destination_dir):
     print("Files copied successfully.")
 
 # Define the source directory to search for files
-source_dir = '/home/flo/pacemaker/Data_gzip'
+source_dir = "/home/flo/pacemaker/Data/multi_Si"
 
 # Define the destination directory to copy the files
 destination_dir = '/home/flo/pacemaker/data_grouped'

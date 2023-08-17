@@ -19,10 +19,11 @@ traverse_folders() {
             process_file "$file"
         fi
     done
+    echo "Task completed successfully!"
 }
 
 # Specify the folder path
-folder="Data//multi_trajectories_Si/displacements/test/Si_config1_rlx_at48_E17.5_b0_a0.traj"
+folder="/home/flo/pacemaker/Data/multi_Si"
 
 # Start traversing the main folder and its subfolders
 traverse_folders "$folder"

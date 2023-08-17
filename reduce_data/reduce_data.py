@@ -43,7 +43,7 @@ def reduce_redundancy(data, metric, threshold, norm="max"):
 
 
 if __name__ == '__main__':
-    df = pd.read_pickle("/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
+    df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
     data_filterd=reduce_redundancy(df, "energy_corrected", 0.1)
     reducion_degree = data_filterd.shape[0]/df.shape[0]
     print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))

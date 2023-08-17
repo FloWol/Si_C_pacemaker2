@@ -81,7 +81,7 @@ def plot_df(energy_df):
     plt.show()
 
 if __name__ == '__main__':
-    df = pd.read_pickle("/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
+    df = pd.read_pickle("/home/flo/pacemaker/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
     col = "r"
     # data_filterd=reduce_redundancy_weight(df, "energy_corrected", 0.21)
     # reducion_degree = data_filterd.shape[0]/df.shape[0]
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
 
     norm="fro"
-    data_filterd=reduce_redundancy_weight(df, "forces", 0.2,norm=norm)
+    data_filterd=reduce_redundancy_weight(df, "forces", 0.3,norm=norm)
     reducion_degree = data_filterd.shape[0]/df.shape[0]
     print("Forces: Data was reduced to {:.2f}% ".format(reducion_degree*100))
 
