@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 
 """
 This script takes all .pckl.gzip files and copies them to a single folder
@@ -19,9 +20,9 @@ def copy_pickl_gzip_files(source_dir, destination_dir):
     print("Files copied successfully.")
 
 # Define the source directory to search for files
-source_dir = "/home/flo/pacemaker/Data/multi_Si"
+source_dir = sys.argv[1] #"/home/flo/pacemaker/Data/multi_Si"
 
 # Define the destination directory to copy the files
-destination_dir = '/home/flo/pacemaker/data_grouped'
+destination_dir = sys.argv[2]#'/home/flo/pacemaker/data_grouped'
 
 copy_pickl_gzip_files(source_dir, destination_dir)

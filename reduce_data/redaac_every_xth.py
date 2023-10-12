@@ -24,7 +24,7 @@ def get_diff_func(metric, norm):
     return losses[metric]
 
 
-def reduce_redundancy(df, metric, threshold, norm=None, full_return=False, every_xth=0):
+def reduce_redundancy(df, metric, threshold, norm=None, every_xth=5):
     """
     This function takes in a dataframe already suitable for pacemaker
     and returns a dataframe that filters out all values of the metric that
@@ -56,8 +56,9 @@ def reduce_redundancy(df, metric, threshold, norm=None, full_return=False, every
     df['Difference'] = 0
     diff_function = get_diff_func(metric, norm)
     consecutive_below_threshold = 0
+    selected_indices = []
 
-    #in case the metric is positions we have to take care of  FIXME
+    #in case the metric is positions we have to take care of  TODO
     #first iteration to make sure the first value is included
     if(metric == "distance"):
         last_taken = df["ase_atoms"].iloc[0]
@@ -67,29 +68,27 @@ def reduce_redundancy(df, metric, threshold, norm=None, full_return=False, every
     for row in df.itertuples(index=True):
         current_value = row[index_dict[metric]]
         difference = diff_function(last_taken, current_value)
-        #df.loc[row[0], 'Difference'] = difference #not good FIXME
+        #df.loc[row[0], 'Difference'] = difference #TODO
 
         # Check if the difference exceeds the threshold
         if abs(difference) > threshold:
-            df.loc[row[0], 'Difference'] = difference  #not good FIXME
+            selected_indices.append(row.Index)  #TODO
             # Update the last taken value
             last_taken = current_value
             consecutive_below_threshold = 0
 
         elif consecutive_below_threshold > every_xth: #every xth step do it anyway
-            df.loc[row[0], 'Difference'] = difference
+            selected_indices.append(row.Index)
             last_taken = current_value
             consecutive_below_threshold = 0
-
+        elif every_xth == 0:
+            continue
         else:
             consecutive_below_threshold += 1
 
 
 
-    if(full_return):
-        return df
-    else:
-        return df[np.abs(df["Difference"]) > threshold].iloc[:, :4]#.reset_index(drop=True)
+    return df.iloc[selected_indices].drop(columns="Difference")
 
 
 
@@ -99,19 +98,19 @@ def plot_df(energy_df):
     plt.show()
 
 if __name__ == '__main__':
-    df = pd.read_pickle("/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
-    data_filterd=reduce_redundancy(df, "energy_corrected", 0.2)
-    reducion_degree = data_filterd.shape[0]/df.shape[0]
-    print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))
+    df = pd.read_pickle("../data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
+    # data_filterd=reduce_redundancy(df, "energy_corrected", 0.2)
+    # reducion_degree = data_filterd.shape[0]/df.shape[0]
+    # print("energy_corrected: Data was reduced to {:.2f}% ".format(reducion_degree*100))
     col="r"
-    plt.scatter(df.index.values, df["energy_corrected"], marker=".", s=0.8)
-    plt.scatter(data_filterd.index.values, data_filterd["energy_corrected"], marker=".", s=0.8, color=col)
-    plt.show()
+    # plt.scatter(df.index.values, df["energy_corrected"], marker=".", s=0.8)
+    # plt.scatter(data_filterd.index.values, data_filterd["energy_corrected"], marker=".", s=0.8, color=col)
+    # plt.show()
 
 
     #for forces 0.3?
     norm="fro"
-    data_filterd=reduce_redundancy(df, "forces", 3,norm=norm)
+    data_filterd=reduce_redundancy(df, "forces", 2.5,norm=norm, every_xth=5)
     reducion_degree = data_filterd.shape[0]/df.shape[0]
     print("Forces: Data was reduced to {:.2f}% ".format(reducion_degree*100))
 
@@ -122,18 +121,18 @@ if __name__ == '__main__':
     plt.show()
 
 
-    norm=np.inf
-    data_filterd=reduce_redundancy(df, "distance", 0.4, norm=norm)
-    reducion_degree = data_filterd.shape[0]/df.shape[0]
-    print("Distance: Data was reduced to {:.2f}% ".format(reducion_degree*100))
-
-    positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
-    frob_pos = np.linalg.norm(positions, ord=norm, axis=(1,2))
-
-    positions_reduced = [(row_index, row_data['ase_atoms'].positions) for row_index, row_data in data_filterd.iterrows()]
-    positions_reduced = pd.DataFrame(positions_reduced, columns=['index', 'ase_atoms'])
-    frob_pos_reduced = positions_reduced["ase_atoms"].apply(lambda x: np.linalg.norm(x, ord=norm))
-
-    plt.scatter(np.linspace(0,len(frob_pos),len(frob_pos)), frob_pos, marker=".", s=0.8)
-    plt.scatter(positions_reduced["index"], frob_pos_reduced, marker=".", s=0.8, color=col)
-    plt.show()
+    # norm=np.inf
+    # data_filterd=reduce_redundancy(df, "distance", 0.4, norm=norm)
+    # reducion_degree = data_filterd.shape[0]/df.shape[0]
+    # print("Distance: Data was reduced to {:.2f}% ".format(reducion_degree*100))
+    #
+    # positions = [row['ase_atoms'].positions for index, row in df.iterrows()]
+    # frob_pos = np.linalg.norm(positions, ord=norm, axis=(1,2))
+    #
+    # positions_reduced = [(row_index, row_data['ase_atoms'].positions) for row_index, row_data in data_filterd.iterrows()]
+    # positions_reduced = pd.DataFrame(positions_reduced, columns=['index', 'ase_atoms'])
+    # frob_pos_reduced = positions_reduced["ase_atoms"].apply(lambda x: np.linalg.norm(x, ord=norm))
+    #
+    # plt.scatter(np.linspace(0,len(frob_pos),len(frob_pos)), frob_pos, marker=".", s=0.8)
+    # plt.scatter(positions_reduced["index"], frob_pos_reduced, marker=".", s=0.8, color=col)
+    # plt.show()

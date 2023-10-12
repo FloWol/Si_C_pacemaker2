@@ -5,24 +5,24 @@ import matplotlib.pyplot as plt
 import gzip
 import time
 from reduce_data_accurate import reduce_redundancy
-from reduce_data_peaks_weighted import reduce_redundancy_weight
+from sample_more_peaks import reduce_redundancy_min_max
 
 
 
 
 
 if __name__ == '__main__':
-    df = pd.read_pickle("/data_grouped/Si_config9_rlx_at35_E14.75_b0_a0.pckl.gzip", compression="gzip")
+    df = pd.read_pickle("../data_grouped/Si_config9_rlx_at35_E15.25_b0_a0.pckl.gzip", compression="gzip")
 
-    norm="fro"
+    norm=None
     col="r"
 
-    data_filterd =reduce_redundancy_weight(df, "forces", 0.5,norm=norm)
+    data_filterd =reduce_redundancy_min_max(df, "forces", 0.8,norm=norm)
     reducion_degree = data_filterd.shape[0] / df.shape[0]
     data_filterd = df.iloc[data_filterd]
     print("Forces Peak: Data was reduced to {:.2f}% ".format(reducion_degree*100))
 
-    data_filterd = reduce_redundancy(data_filterd, "forces", 22, norm=norm)
+    data_filterd = reduce_redundancy(data_filterd, "forces", 50, norm=norm, every_xth=4)
     reducion_degree = data_filterd.shape[0] / df.shape[0]
     print("Forces: Data was reduced to {:.2f}% ".format(reducion_degree * 100))
 

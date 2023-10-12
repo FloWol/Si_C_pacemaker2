@@ -15,7 +15,7 @@ def make_input_data(images, data_file, id_list=None):
         ref_energies[element]=0.0
         if os.path.isfile(ref_file):
             isolated = io.read()
-            ref_energies[element] =  isolated.get_potential_energy()
+            ref_energies[element] = isolated.get_potential_energy()
         
     def reference_energy(atoms, ref_energies=ref_energies):
         E = 0
@@ -63,5 +63,5 @@ file = sys.argv[1]
 name = os.path.splitext(file)[0]
 
 traj = io.Trajectory(file,'r')
-make_input_data(traj, name + '.pckl.gzip')
-print("succes!")
+make_input_data(traj, name + '.pckl.gzip') #
+print("success!")

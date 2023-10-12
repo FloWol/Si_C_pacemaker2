@@ -23,7 +23,7 @@ traverse_folders() {
 }
 
 # Specify the folder path
-folder="/home/flo/pacemaker/Data/multi_Si"
+folder="/home/flo/pacemaker/Data/potential_runs/Distance_10_potential"
 
 # Start traversing the main folder and its subfolders
 traverse_folders "$folder"

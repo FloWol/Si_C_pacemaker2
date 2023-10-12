@@ -22,8 +22,29 @@ pace_path = "/home/flo/pacemaker/Data2/multi_trajectories_Si/displacements/confi
 # pace_path = "/home/flo/pacemaker/Data2/single_trajectories_Si/14eV/alpha65/gra66_triSi_rlx_self_at29_E14.0_a30.0_b65.0.traj"
 
 
-md_path = "/home/flo/pacemaker/Data/multi_Si/displacements/config5/49/Si_config5_rlx_at49_E17.5_b0_a0.traj"
-pace_path = "/home/flo/pacemaker/Data/multi_Si/displacements/config5/49/Si_config5_rlx_self_at49_E17.5_b0.0_a0.0.traj"
+# md_path = "/home/flo/pacemaker/Data/multi_Si/displacements/config5/49/Si_config5_rlx_at49_E17.5_b0_a0.traj"
+# pace_path = "/home/flo/pacemaker/Data/multi_Si/displacements/config5/49/Si_config5_rlx_self_at49_E17.5_b0.0_a0.0.traj"
+
+md_path = "/home/flo/pacemaker/Data/multi_Si/displacements/config1/atom62/Si_config1_rlx_at62_E14.25_b0_a0.traj"
+pace_path  = "/home/flo/pacemaker/Data/multi_Si/displacements/config1/atom62/Si_config1_rlx_self_1st_at62_E14.25_b0.0_a0.0.traj"
+
+
+#eject
+md_path="/home/flo/pacemaker/Data/multi_Si/displacements/config2/35/Si_config2_rlx_self_1st_at35_E15.0_b0.0_a0.0.traj"
+pace_path = md_path
+
+pace_path="/home/flo/pacemaker/Data/multi_Si/displacements/config2/48/Si_config2_rlx_self_1st_at48_E15.0_b0.0_a0.0.traj"
+md_path="/home/flo/pacemaker/Data/multi_Si/displacements/config2/48/Si_config2_rlx_at48_E15_b0_a0.traj"
+
+pace_path="/home/flo/pacemaker/Data/multi_Si/displacements/config9/35/Si_config9_rlx_self_1st_at35_E14.75_b0.0_a0.0.traj"
+md_path="/home/flo/pacemaker/Data/multi_Si/displacements/config9/35/Si_config9_rlx_at35_E14.75_b0_a0.traj"
+
+pace_path="/home/flo/pacemaker/Data/multi_Si/displacements/config6/66/Si_config6_rlx_self_1st_at66_E18.0_b0.0_a0.0.traj"
+md_path="/home/flo/pacemaker/Data/multi_Si/displacements/config6/66/Si_config6_rlx_at66_E18_b0_a0.traj"
+
+pace_path="/home/flo/pacemaker/Data/multi_Si/displacements/config4/34/Si_config4_rlx_self_1st_at34_E15.25_b0.0_a0.0.traj"
+md_path="/home/flo/pacemaker/Data/multi_Si/displacements/config4/34/Si_config4_rlx_at34_E15.25_b0_a0.traj"
+
 
 traj_md = io.Trajectory(md_path, 'r')
 pace_md = io.Trajectory(pace_path, 'r')
@@ -51,5 +72,19 @@ plt.scatter(md_data.index.values, md_data["forces"].apply(lambda x : np.linalg.n
 plt.scatter(pace_data.index.values, pace_data["forces"].apply(lambda x : np.linalg.norm(x)), marker=".", s=0.8, label="ML")
 plt.legend()
 plt.show()
+
+if len(md_data) < len(pace_data):
+    size = len(md_data)
+else:
+    size=len(pace_data)
+
+diffs =  md_data.iloc[:size]-pace_data.iloc[:size]
+
+plt.scatter(diffs.index.values, diffs["forces"].apply(lambda x : np.linalg.norm(x)), marker=".", s=0.8, label="diff")
+#plt.scatter(diffs.index.values, np.cumsum(diffs["forces"].apply(lambda x : np.linalg.norm(x))), marker=".", s=0.8, label="cumsum")
+plt.title("dF")
+
+
+
 
 print(md_data["forces"].apply(lambda x : np.linalg.norm(x))-pace_data["forces"].apply(lambda x : np.linalg.norm(x)))

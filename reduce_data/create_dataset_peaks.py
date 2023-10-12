@@ -75,11 +75,10 @@ def concat_dataframes(root_folder, metric, threshold,reduction_f, norm=None):
     return  # dataset #commented to be easier on the memory
 
 
-# if __name__ == '__main__':
-single_Si = True
-multi_Si = True
-eV_range = lambda start, end, step=0.5: np.arange(start, end + step, step)
-
-folder_path = "/home/flo/pacemaker/data_grouped" # Replace with the actual root folder path
-concat_dataframes(folder_path, "forces", 0.8, reduce_redundancy_min_max, norm="fro")
-print("done")
+if __name__ == '__main__':
+# single_Si = True
+# multi_Si = True
+# eV_range = lambda start, end, step=0.5: np.arange(start, end + step, step)
+    folder_path = "/home/flo/pacemaker/data_grouped" # Replace with the actual root folder path
+    concat_dataframes(folder_path, "forces", 0.8, reduce_redundancy_min_max, norm="fro")
+    print("done")

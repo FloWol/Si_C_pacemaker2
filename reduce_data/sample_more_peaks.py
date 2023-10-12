@@ -25,7 +25,7 @@ def get_diff_func(metric, norm):
     return losses[metric]
 
 
-def reduce_redundancy_min_max(df, metric, reduction, norm=None, boost_factor=2, peak_importance_factor=1000, full_return=False):
+def reduce_redundancy_min_max(df, metric, reduction, norm=None, full_return=False):
     """
     This function takes in a dataframe already suitable for pacemaker
     and returns a dataframe that filters out all values of the metric that
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
 
     norm="fro"
-    data_filterd=reduce_redundancy_min_max(df, "forces", 0.3,norm=norm)
+    data_filterd=reduce_redundancy_min_max(df, "forces", 0.2,norm=norm)
     reducion_degree = data_filterd.shape[0]/df.shape[0]
     print("Forces: Data was reduced to {:.2f}% ".format(reducion_degree*100))
 
